@@ -5,17 +5,17 @@ class Feature_provider:
     def __init__(self, data):
         self.data = data
         
-    def get_slice(self, features):
+    def get_slice(self, features, sparse_output = True):
+        if(sparse_output):
+            return self.data[:, features]
         
-        if(isinstance(features, int)):
-            return self._get_col(features)
+        else:
+            return self.data[:, features].toarray()
         
-        arr = []
-        for f in features:
-            arr.append(self.data.getcol(f).toarray())
-            
-        return np.concatenate(arr, axis = -1)
     
     def _get_col(self, f):
+        if(sparse):
+            return self.data.getcol(f)
+
         return self.data.getcol(f).toarray()
         

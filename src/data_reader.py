@@ -1,6 +1,12 @@
 import numpy as np
 import scipy 
 
+def get_labels(path):
+    with open(path, 'r') as f:
+        text = f.read()
+
+    return list(map(int, filter(lambda x: x!= '', text.split('\n'))))
+
 class Data_reader:
     def __init__(self, config):
         self._path = config['file_path']
