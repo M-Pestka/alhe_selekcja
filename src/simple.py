@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+Created on Fri May 22 15:41:45 2020
+
+@author: kristofer
+"""
 
 from data_reader import Data_reader, get_labels
 from feature_provider import Feature_provider
@@ -74,66 +79,16 @@ def test_score(feature_array):
     
     return score
 
-#zmienia tablicę [0,1,1,0,...] na [2,3,...]
-def __convert_array_to_features__(x):
-    feature_index_array = []
-    for i, feature in enumerate(x):
-        if(feature > 0):
-            feature_index_array.append(i)
-    return feature_index_array
-
-#liczy funkcję którą trzeba zminimalizować
-def objective_function(x):
-    feature_index_array = __convert_array_to_features__(x)
-    
-    if not feature_index_array:
-        return 0
-    
-    result = fitting_score(feature_index_array)
-    
-    #negate result so it can be minimized
-    result = -result
-    
-    return result
-
-def change_features(x):
-    g = np.array(x)
-
-    zero_flip_mask = ((g==0)*np.random.uniform(size = g.shape) > (1-1e-5)).astype(int)
-    g = g*(1-zero_flip_mask) + (1-g)*zero_flip_mask
-
-    ones_flip_mask = ((g==1)*np.random.uniform(size = g.shape) > (1-0.01)).astype(int)
-    g = g*(1-ones_flip_mask) + (1-g)*ones_flip_mask
-
-    return g.tolist()
-
-
-class DorotheaProblem(Annealer):
-    def __init__(self, state, p):
-        super(DorotheaProblem, self).__init__(state)  # important!
-        self.p = p
-    
-    #adaptacja stanu
-    def move(self):
-        self.state = change_features(self.state)
-
-    def energy(self):
-        return objective_function(self.state)
-
-def run(initial_state):
-    DP = DorotheaProblem(initial_state, 0.1)
-    DP.Tmax = 0.01
-    DP.Tmin = 0.0001
-    DP.updates = 10
-    DP.steps = 1000
-    array, r = DP.anneal()
-    features = __convert_array_to_features__(array)
-    
-    #run model on a test data
-    result = test_score(features)
-    
-    return result, features
-
 if __name__ == '__main__':
-    initial_state = [1 for x in range(100000)]
-    result, features = run(initial_state)
+    scores = []
+    for feature in range(100000):
+        scores.append(fitting_score(feature))
+        if(feature % 10000 == 0):
+            print("Finished: " + str(feature))
+    
+    np_scores = np.array(scores)
+    sorted_indicies = np.argsort(np_scores)[::-1]
+    
+    for number_of_features in np.array(range(20))+1:
+        score = fitting_score(sorted_indicies[:number_of_features])
+        print("Liczba cech: " + str(number_of_features) + " , wynik: " + str(score))
