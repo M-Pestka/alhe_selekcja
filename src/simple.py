@@ -90,5 +90,5 @@ if __name__ == '__main__':
     sorted_indicies = np.argsort(np_scores)[::-1]
     
     for number_of_features in np.array(range(20))+1:
-        score = fitting_score(sorted_indicies[:number_of_features])
+        score = test_score(sorted_indicies[:number_of_features])
         print("Liczba cech: " + str(number_of_features) + " , wynik: " + str(score))
